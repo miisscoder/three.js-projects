@@ -1,0 +1,307 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>three.js css3d - 元素周期表</title>
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: Helvetica, sans-serif;
+            overflow: hidden;
+        }
+
+        video {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        a {
+            color: #ffffff;
+        }
+
+        #info {
+            position: absolute;
+            width: 100%;
+            color: #ffffff;
+            padding: 5px;
+            font-family: Monospace;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 1;
+        }
+
+        #menu {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .element {
+            width: 180px;
+            height: 256px;
+            box-shadow: 0px 0px 12px rgba(0,255,255,0.5);
+            border: 1px solid rgba(127,255,255,0.25);
+            text-align: center;
+            cursor: default;
+        }
+
+
+
+        button {
+            color: rgba(127,255,255,0.75);
+            background: transparent;
+            outline: 1px solid rgba(127,255,255,0.75);
+            border: 0px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: rgba(0,255,255,0.5);
+            }
+
+            button:active {
+                color: #000000;
+                background-color: rgba(0,255,255,0.75);
+            }
+    </style>
+</head>
+<body>
+    <script src="js/three.min.js"></script>
+    <script src="js/tween.min.js"></script>
+    <script src="js/TrackballControls.js"></script>
+    <script src="js/CSS3DRenderer.js"></script>
+    <video id="vid" src="video/golden.mp4" type="video/mp4" autoplay
+           loop controls muted></video>
+    <div id="container"></div>
+    <div id="info">思数工作室-抽奖</div>
+    <div id="menu">
+        <button id="start">START</button>
+        <button id="end">END</button>
+    </div>
+    <img id="image" src="image/26696.png" />
+    <script>
+
+
+        var route = "./image/27头像包/";
+        var table = [
+            "001.bmp",
+            "002.bmp",
+            "003.bmp",
+            "004.bmp",
+            "005.bmp",
+            "006.bmp",
+            "007.bmp",
+            "008.bmp",
+            "009.bmp",
+            "010.bmp",
+            "011.bmp",
+            "012.bmp",
+            "013.bmp",
+            "014.bmp",
+            "015.bmp",
+            "016.bmp",
+            "017.bmp",
+            "018.bmp",
+            "019.bmp",
+            "020.bmp",
+            "021.bmp",
+            "022.bmp",
+            "023.bmp",
+            "024.bmp",
+            "025.bmp",
+            "026.bmp",
+            "027.bmp",
+            "028.bmp",
+            "029.bmp",
+            "030.bmp",
+            "031.bmp",
+            "032.bmp",
+            "033.bmp",
+            "034.bmp",
+            "035.bmp",
+            "036.bmp",
+            "037.bmp",
+            "038.bmp",
+            "039.bmp",
+            "040.bmp",
+            "041.bmp",
+            "042.bmp",
+            "043.bmp",
+            "044.bmp",
+            "045.bmp",
+            "046.bmp",
+            "047.bmp",
+            "048.bmp",
+            "049.bmp",
+            "050.bmp",
+            "051.bmp",
+            "052.bmp",
+            "053.bmp",
+            "054.bmp",
+            "055.bmp",
+            "056.bmp",
+            "057.bmp",
+            "058.bmp",
+            "059.bmp",
+            "060.bmp",
+            "061.bmp",
+            "062.bmp",
+            "063.bmp",
+            "064.bmp"
+        ];
+
+        var camera, scene, renderer;
+        var controls;
+
+        var objects = [];
+        var targets = { sphere: [] };
+        var radius = 4000, theta = 0, increment = 0;
+
+        init();
+        animate();
+
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * Math.floor(max));
+        }
+
+
+        function init() {
+
+            document.getElementById('vid').play();
+
+            camera = new THREE.PerspectiveCamera(40,
+                window.innerWidth / window.innerHeight,
+                1, 10000);
+            camera.position.z = 3000;
+
+            scene = new THREE.Scene();
+
+            // objects
+
+            for (var i = 0; i < table.length; i++) {
+
+                var element = document.createElement('img');
+                element.className = 'element';
+                element.src = route + table[i];
+
+                var object = new THREE.CSS3DObject(element);
+                object.position.x = Math.random() * 4000 - 2000;
+                object.position.y = Math.random() * 4000 - 2000;
+                object.position.z = Math.random() * 4000 - 2000;
+                scene.add(object);
+
+                objects.push(object);
+            }
+
+            // sphere
+
+            var vector = new THREE.Vector3();
+
+            for (var i = 0, l = objects.length; i < l; i++) {
+
+                var phi = Math.acos(-1 + (2 * i) / l);
+                var theta = Math.sqrt(l * Math.PI) * phi;
+
+                var object = objects[i];
+
+                object.position.x = 800 * Math.cos(theta) * Math.sin(phi);
+                object.position.y = 800 * Math.sin(theta) * Math.sin(phi);
+                object.position.z = 800 * Math.cos(phi);
+
+                vector.copy(object.position).multiplyScalar(2);
+
+                object.lookAt(vector);
+            }
+
+            //
+
+            renderer = new THREE.CSS3DRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.domElement.style.position = 'absolute';
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            //
+
+            var elementI = document.getElementById('image');
+            elementI.style.opacity = 0;
+
+            var objectI = new THREE.CSS3DObject(elementI);
+            scene.add(objectI);
+
+            var button = document.getElementById('start');
+            button.addEventListener('click', function (event) {
+
+                increment = 1;
+                elementI.style.opacity = 0;
+
+            }, false);
+
+            var button = document.getElementById('end');
+            button.addEventListener('click', function (event) {
+
+                increment = 0;
+                elementI.style.opacity = 1;
+                document.getElementById('image').src = route + table[getRandomInt(64)];
+
+            }, false);
+
+            window.addEventListener('resize', onWindowResize, false);
+
+
+        }
+
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            render();
+
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+
+            render();
+
+            //controls.update();
+
+        }
+
+
+        function render() {
+
+            theta += increment;
+
+            var ob = scene.children[scene.children.length - 1];
+            ob.position.x = 3000 * Math.sin(THREE.Math.degToRad(theta));
+            ob.position.z = 3000 * Math.cos(THREE.Math.degToRad(theta));
+
+            ob.lookAt(scene.position);
+
+            camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta));
+            camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta));
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+
+        }
+
+    </script>
+</body>
+</html>
